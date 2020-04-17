@@ -1,0 +1,111 @@
+﻿// N nearest neighbours model
+
+#pragma kernel CSMain
+static const int threadGroupSize = 1024;
+
+struct Boid {
+    float2 position;
+    float2 direction;
+
+    float2 flockHeading;
+    float2 flockCentre;
+    float2 separationHeading;
+    int numFlockmates;
+};
+
+RWStructuredBuffer<Boid> boids;
+uint numBoids;
+uint screenWidth;
+uint screenHeight;
+float viewRadius;
+float avoidRadius;
+float maxFov;
+
+// not used
+uint maxNumNeighbours;
+float minFov; // [0,1] range is mapped from -maxfov to maxfov, makes it easier
+
+// local variables
+float2 offset, front_offset, back_offset;
+float3 a, b;
+float sqrDst, dotProduct, v1Norm, v2Norm, angle, front_angle, back_angle;
+float half_length_of_boid = 1;
+int b_on_left_of_a; // 0 = false = b is on the right
+int intervals_intersected; // 0 => this is a new interval, so take one of the [0,0] ones
+float2 coveredIntervals[10]; // maximum 10 distinct blobs can be seen at once?
+
+float angle_between(float2 vector1, float2 vector2) {
+	dotProduct = dot(vector1, vector2);
+	v1Norm = length(vector1);
+	v2Norm = length(vector2);
+	angle = acos(dotProduct / (v1Norm * v2Norm));
+	return (angle);
+}
+
+[numthreads(threadGroupSize,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	for (uint indexB = 0; indexB < numBoids; indexB ++) {
+		if (id.x != indexB) {
+			Boid boidB = boids[indexB];
+			offset = boidB.position - boids[id.x].position;
+            sqrDst = dot(offset, offset);
+			
+			// all the angles are symmetric around the direction of this boid
+			// so we need to determine if boidB is on the left or right hand side
+			a = float3(boids[id.x].direction, 0.0);
+			b = float3(offset, 0.0);
+			if (cross(a, b)[2] > 0) {
+				b_on_left_of_a = 1;
+			} else {
+				b_on_left_of_a = 0;
+			}
+			
+			angle = angle_between(boids[id.x].direction, offset);
+
+			if (sqrDst < viewRadius * viewRadius) {
+				if (minFov <= angle <= maxFov) {
+					// the centre of the bird is within fov
+					front_offset = offset + (half_length_of_boid * normalize(boidB.direction));
+					back_offset = offset - (half_length_of_boid * normalize(boidB.direction));
+					front_angle = angle_between(boids[id.x].position, front_offset);
+					back_angle = angle_between(boids[id.x].position, back_offset);
+					
+					if (back_angle < front_angle) {
+						// boidB is flying in the opposite direction
+						// can use angle as a swap, don't need it anymore?
+						angle = back_angle;
+						back_angle = front_angle;
+						front_angle = angle;
+					}
+					
+					// check there aren't going to be any overlaps in the intervals covered
+					intervals_intersected = 0;
+					for (uint i=0; i<coveredIntervals.Length; i++) {
+						if (coveredIntervals[i][0] <= front_angle && back_angle <= coveredIntervals[i][1]) {
+							// this one is already completely covered, so don't add it
+							intervals_intersected = 1;
+							continue;
+						} else if (coveredIntervals[i][0] <= front_angle && back_angle > coveredIntervals[i][1]) {
+							// this one extends out the back of a pre-existing interval
+							intervals_intersected = 1;
+							coveredIntervals[i][1] = back_angle;
+							continue;
+						} else if (coveredIntervals[i][0] > front_angle && back_angle <= coveredIntervals[i][1]) {
+							// this one extends out the front of a pre-existing interval
+							intervals_intersected = 1;
+							coveredIntervals[i][0] = front_angle;
+						} else {
+							// this one doesn't intersect any intervals already found
+							continue;
+						}
+					}
+					if (intervals_intersected == 0) {
+						// this was a new interval, that didn't intersect any pre-existing ones, so add it
+						
+					}
+				}
+			}
+		}
+	}
+}
