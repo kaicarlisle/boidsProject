@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BoidManager : MonoBehaviour {
     
-    const int threadGroupSize = 1024;
+    const int threadGroupSize = 2048;
     public BoidSettings settings;
     public ComputeShader compute;
     Boid[] boids;
@@ -13,6 +13,10 @@ public class BoidManager : MonoBehaviour {
 	float C;
 	float correlationLength;
 	Vector2 avgVelocity, polarisation;
+	float maxDistance = 0f;
+	int numConsecutiveFlocked = 0;
+	string[] values = new string[10];
+	int stringsIndex = 0;
 
     void Start() {
         boids = FindObjectsOfType<Boid>();
@@ -86,8 +90,8 @@ public class BoidManager : MonoBehaviour {
 			}
 			polarisation /= numBoids;
 			
-			// >= 0.975
-			if (polarisation.magnitude >= 1.5) {
+			// require 10 consecutive iterations where the birds are in a flock to reduce noise
+			if (polarisation.magnitude >= 0.975 && numConsecutiveFlocked >= 10) {
 				
 				// calculate correlation length - length at which C <= 0 for n consecutive steps
 				avgVelocity = Vector2.zero;
@@ -99,11 +103,33 @@ public class BoidManager : MonoBehaviour {
 				correlationLength = 0.5f;
 				do {
 					C = correlation(correlationLength, 0.1f);
-					correlationLength += 0.5f;
+					correlationLength += 0.05f;
 				} while (C > 0 && correlationLength < 30);
 				
 				// get scale of flock - max distance between any two birds
-				// plot flock scale against correlation length
+				maxDistance = 0f;
+				for (int i = 0; i < numBoids; i++) {
+					for (int j = 0; j < numBoids; j++) {
+						if (Vector2.Distance(boids[i].position, boids[j].position) > maxDistance) {
+							maxDistance = Vector2.Distance(boids[i].position, boids[j].position);
+						}
+					}
+				}
+				
+				// log flock scale against correlation length
+				if (maxDistance < 60) {
+					values[stringsIndex] = maxDistance + "," + correlationLength;
+					stringsIndex += 1;
+					
+					if (stringsIndex >= 9) {
+						System.IO.File.AppendAllLines(@"D:\Libraries\Documents\Uni\Fourth year\PRBX\Values.txt", values);
+						stringsIndex = 0;
+					}
+				}
+			} else if (polarisation.magnitude >= 0.975) {
+				numConsecutiveFlocked += 1;
+			} else {
+				numConsecutiveFlocked = 0;
 			}
         }
     }

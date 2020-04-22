@@ -7,7 +7,7 @@ public class BoidSettings : ScriptableObject
 {
     // Settings
 	[Header("Basic settings")]
-    [Range(0, 2000)]
+    [Range(0, 1000)]
     public int numBoids = 800;
 	[HideInInspector]
 	[Range(1,10)]
@@ -44,8 +44,8 @@ public class BoidSettings : ScriptableObject
 	public int NNearestNeighbours = 7;
 	
 	
-	[HideInInspector]
+	//[HideInInspector]
 	public int screenWidth = 58;
-	[HideInInspector]
+	//[HideInInspector]
 	public int screenHeight = 32;
 }

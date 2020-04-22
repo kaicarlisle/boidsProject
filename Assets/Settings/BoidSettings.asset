@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c060f91fddc4b440896fdc0f9ba7fdc, type: 3}
   m_Name: BoidSettings
   m_EditorClassIdentifier: 
-  numBoids: 328
+  numBoids: 8000
   spawnRadius: 10
-  minSpeed: 3
+  minSpeed: 5
   maxSpeed: 10
-  maxSteerForce: 5
-  alignWeight: 0.917
-  cohesionWeight: 0.843
+  maxSteerForce: 3
+  alignWeight: 0.9
+  cohesionWeight: 0.8
   seperateWeight: 1
-  perceptionRadius: 5
-  avoidanceRadius: 1
+  perceptionRadius: 12
+  avoidanceRadius: 0.95
   minFov: 0
-  maxFov: 150
-  NNearestNeighbours: 4
-  screenWidth: 58
-  screenHeight: 32
+  maxFov: 130
+  NNearestNeighbours: 7
+  screenWidth: 92
+  screenHeight: 52

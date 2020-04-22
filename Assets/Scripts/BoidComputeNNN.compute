@@ -20,6 +20,8 @@ uint screenHeight;
 uint maxNumNeighbours;
 
 // not used
+float2 offset, offset1, offset2, offset3, offset4, offset5, offset6, offset7, offset8;
+float sqrDst, sqrDst1, sqrDst2, sqrDst3, sqrDst4, sqrDst5, sqrDst6, sqrDst7, sqrDst8;
 float viewRadius;
 float avoidRadius;
 float minFov;
@@ -42,30 +44,30 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 			if (id.x != indexB) {
 				Boid boidB = boids[indexB];
 				float2 offset = boidB.position - boids[id.x].position;
-				float sqrDst = offset.x * offset.x + offset.y * offset.y;
+				float sqrDst = dot(offset, offset);
 
 				if (sqrDst < viewRadius * viewRadius) {
 					numNeighbours += 1;
 					continue;
 				}
 				
-				float2 offset1 = offset + screenHeight;
-				float2 offset2 = offset + screenWidth + screenHeight;
-				float2 offset3 = offset + screenWidth;
-				float2 offset4 = offset + screenWidth - screenHeight;
-				float2 offset5 = offset - screenHeight;
-				float2 offset6 = offset - screenHeight - screenWidth;
-				float2 offset7 = offset - screenWidth;
-				float2 offset8 = offset - screenWidth + screenHeight;
+				offset1 = offset + screenHeight;
+				offset2 = offset + screenWidth + screenHeight;
+				offset3 = offset + screenWidth;
+				offset4 = offset + screenWidth - screenHeight;
+				offset5 = offset - screenHeight;
+				offset6 = offset - screenHeight - screenWidth;
+				offset7 = offset - screenWidth;
+				offset8 = offset - screenWidth + screenHeight;
 				
-				float sqrDst1 = offset1.x * offset1.x + offset1.y * offset1.y;
-				float sqrDst2 = offset2.x * offset1.x + offset1.y * offset1.y;
-				float sqrDst3 = offset3.x * offset3.x + offset3.y * offset3.y;
-				float sqrDst4 = offset4.x * offset4.x + offset4.y * offset4.y;
-				float sqrDst5 = offset5.x * offset5.x + offset5.y * offset5.y;
-				float sqrDst6 = offset6.x * offset6.x + offset6.y * offset6.y;
-				float sqrDst7 = offset7.x * offset7.x + offset7.y * offset7.y;
-				float sqrDst8 = offset8.x * offset8.x + offset8.y * offset8.y;
+				sqrDst1 = dot(offset1, offset1);
+				sqrDst2 = dot(offset2, offset2);
+				sqrDst3 = dot(offset3, offset3);
+				sqrDst4 = dot(offset4, offset4);
+				sqrDst5 = dot(offset5, offset5);
+				sqrDst6 = dot(offset6, offset6);
+				sqrDst7 = dot(offset7, offset7);
+				sqrDst8 = dot(offset8, offset8);
 				
 				viewRadiusSqrd = viewRadius * viewRadius;
 				
@@ -104,23 +106,23 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 				continue;
 			}
 			
-			float2 offset1 = offset + screenHeight;
-			float2 offset2 = offset + screenWidth + screenHeight;
-			float2 offset3 = offset + screenWidth;
-			float2 offset4 = offset + screenWidth - screenHeight;
-			float2 offset5 = offset - screenHeight;
-			float2 offset6 = offset - screenHeight - screenWidth;
-			float2 offset7 = offset - screenWidth;
-			float2 offset8 = offset - screenWidth + screenHeight;
+			offset1 = offset + screenHeight;
+			offset2 = offset + screenWidth + screenHeight;
+			offset3 = offset + screenWidth;
+			offset4 = offset + screenWidth - screenHeight;
+			offset5 = offset - screenHeight;
+			offset6 = offset - screenHeight - screenWidth;
+			offset7 = offset - screenWidth;
+			offset8 = offset - screenWidth + screenHeight;
 			
-			float sqrDst1 = offset1.x * offset1.x + offset1.y * offset1.y;
-			float sqrDst2 = offset2.x * offset1.x + offset1.y * offset1.y;
-			float sqrDst3 = offset3.x * offset3.x + offset3.y * offset3.y;
-			float sqrDst4 = offset4.x * offset4.x + offset4.y * offset4.y;
-			float sqrDst5 = offset5.x * offset5.x + offset5.y * offset5.y;
-			float sqrDst6 = offset6.x * offset6.x + offset6.y * offset6.y;
-			float sqrDst7 = offset7.x * offset7.x + offset7.y * offset7.y;
-			float sqrDst8 = offset8.x * offset8.x + offset8.y * offset8.y;
+			sqrDst1 = dot(offset1, offset1);
+			sqrDst2 = dot(offset2, offset2);
+			sqrDst3 = dot(offset3, offset3);
+			sqrDst4 = dot(offset4, offset4);
+			sqrDst5 = dot(offset5, offset5);
+			sqrDst6 = dot(offset6, offset6);
+			sqrDst7 = dot(offset7, offset7);
+			sqrDst8 = dot(offset8, offset8);
 			
 			viewRadiusSqrd = viewRadius * viewRadius;
 			
@@ -143,4 +145,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 			}
 		}
 	}
+	
+	boids[id.x].flockHeading /= boids[id.x].numFlockmates;
+	boids[id.x].flockCentre /= boids[id.x].numFlockmates;
 }
