@@ -6,6 +6,16 @@ using UnityEngine;
 public class BoidSettings : ScriptableObject
 {
     // Settings
+	[Space]
+	[Header("System settings")]
+	//[HideInInspector]
+	public int screenWidth = 58;
+	//[HideInInspector]
+	public int screenHeight = 32;
+	//[HideInInspector]
+	[Tooltip("The location where the correlation measurements will be written to")]
+	public string outputLocation = @"";
+	
 	[Header("Basic settings")]
     [Range(0, 1000)]
     public int numBoids = 800;
@@ -24,10 +34,13 @@ public class BoidSettings : ScriptableObject
     public float cohesionWeight = 1;
 	[Range(0,1)]
     public float seperateWeight = 2;
+	[Range(0,1)]
+	public float polarisationLimit = 0.975f;
+	[Range(-1,1)]
+	public float correlationLimit = 0f;
 	
 	[Space]
 	[Header("Settings for visual neighbour system")]
-	// using visual neighbour system
 	[Range(0,30)]
     public float perceptionRadius = 3f;
 	[Range(0,10)]
@@ -39,13 +52,6 @@ public class BoidSettings : ScriptableObject
 	
 	[Space]
 	[Header("Settings for topological neighbour system")]
-	// using topological neighbour system
 	[Range(1,50)]
 	public int NNearestNeighbours = 7;
-	
-	
-	//[HideInInspector]
-	public int screenWidth = 58;
-	//[HideInInspector]
-	public int screenHeight = 32;
 }

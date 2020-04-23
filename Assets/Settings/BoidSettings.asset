@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c060f91fddc4b440896fdc0f9ba7fdc, type: 3}
   m_Name: BoidSettings
   m_EditorClassIdentifier: 
-  numBoids: 8000
+  numBoids: 100
   spawnRadius: 10
   minSpeed: 5
   maxSpeed: 10
@@ -25,5 +25,8 @@ MonoBehaviour:
   minFov: 0
   maxFov: 130
   NNearestNeighbours: 7
-  screenWidth: 92
-  screenHeight: 52
+  screenWidth: 117
+  screenHeight: 65
+  outputLocation: D:\Libraries\Documents\Uni\Fourth year\PRBX
+  polarisationLimit: 0.975
+  correlationLimit: 0

@@ -54,6 +54,7 @@ public class Boid : MonoBehaviour
             acceleration += alignmentForce + cohesionForce + separationForce;
         }
 		
+		// add the mouse click forces
 		if (mouseClickPos != Vector2.zero) {
 			acceleration += SteerTowards(mouseClickPos - position) * 2;
 		}
@@ -61,6 +62,7 @@ public class Boid : MonoBehaviour
 			acceleration += SteerTowards(mouseClick2Pos - position) * -50;
 		}
         
+		// calculate and clamp the acceleration -> velocity -> position
         velocity += acceleration * Time.deltaTime;
         float speed = velocity.magnitude;
         Vector2 dir = velocity / speed;
@@ -68,7 +70,8 @@ public class Boid : MonoBehaviour
         velocity = dir * speed;
 		
         position += velocity * Time.deltaTime;
-
+	
+		// wrap any birds which went off screen
         if (position.x >= settings.screenWidth / 2) {
             position.x = 1 - settings.screenWidth / 2;
         }
@@ -82,6 +85,7 @@ public class Boid : MonoBehaviour
             position.y = (settings.screenHeight / 2) - 1;
         }
         
+		// update draw position on screen
         transform.position = position;
 		
         forward = dir;        

@@ -26,6 +26,7 @@ public class BoidManager : MonoBehaviour {
     }
 
     void Update() {
+		// calculate the world locations of the mouse clicks, pass them to the boids
 		if (UnityEngine.Input.GetMouseButton(0)) { 
 			Boid.mouseClickPos = new Vector2(((Input.mousePosition.x / Screen.width) * settings.screenWidth) - settings.screenWidth / 2,
 										     ((Input.mousePosition.y / Screen.height) * settings.screenHeight) - settings.screenHeight / 2);
@@ -83,7 +84,8 @@ public class BoidManager : MonoBehaviour {
             boidBuffer.Release();
 			
 			// do scale free calculations
-			// only if the birds have formed a cohesive flock - all velocities pointing roughly same direction
+			// only if the birds have formed a cohesive flock
+			// all velocities pointing roughly same direction, magnitude of polarisation >= 0.975
 			polarisation = Vector2.zero;
 			for (int i = 0; i < numBoids; i++) {
 				polarisation += (boids[i].velocity / boids[i].velocity.magnitude);
@@ -91,20 +93,21 @@ public class BoidManager : MonoBehaviour {
 			polarisation /= numBoids;
 			
 			// require 10 consecutive iterations where the birds are in a flock to reduce noise
-			if (polarisation.magnitude >= 0.975 && numConsecutiveFlocked >= 10) {
+			if (polarisation.magnitude >= settings.polarisationLimit && numConsecutiveFlocked >= 10) {
 				
-				// calculate correlation length - length at which C <= 0 for n consecutive steps
+				// calculate average velocity of flock, needed for correlation calculation
 				avgVelocity = Vector2.zero;
 				for (int i = 0; i < numBoids; i++) {
 					avgVelocity += boids[i].velocity;
 				}
 				avgVelocity /= numBoids;
 				
+				// calculate correlation length - length at which C >= 0
 				correlationLength = 0.5f;
 				do {
-					C = correlation(correlationLength, 0.1f);
 					correlationLength += 0.05f;
-				} while (C > 0 && correlationLength < 30);
+					C = correlation(correlationLength, 0.1f);
+				} while (C > settings.correlationLimit && correlationLength < 30);
 				
 				// get scale of flock - max distance between any two birds
 				maxDistance = 0f;
@@ -116,17 +119,18 @@ public class BoidManager : MonoBehaviour {
 					}
 				}
 				
-				// log flock scale against correlation length
-				if (maxDistance < 60) {
+				// log the flock scale against correlation length
+				// ignore is the distance is too large, as it indicates flock is split across boundary / two sub-flocks
+				if (maxDistance < settings.screenHeight / 2) {
 					values[stringsIndex] = maxDistance + "," + correlationLength;
 					stringsIndex += 1;
 					
 					if (stringsIndex >= 9) {
-						System.IO.File.AppendAllLines(@"D:\Libraries\Documents\Uni\Fourth year\PRBX\Values.txt", values);
+						System.IO.File.AppendAllLines(@settings.outputLocation + "\\correlations.txt", values);
 						stringsIndex = 0;
 					}
 				}
-			} else if (polarisation.magnitude >= 0.975) {
+			} else if (polarisation.magnitude >= settings.polarisationLimit) {
 				numConsecutiveFlocked += 1;
 			} else {
 				numConsecutiveFlocked = 0;
