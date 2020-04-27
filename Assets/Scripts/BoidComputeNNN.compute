@@ -20,34 +20,43 @@ uint screenHeight;
 uint maxNumNeighbours;
 
 // not used
-float2 offset, offset1, offset2, offset3, offset4, offset5, offset6, offset7, offset8;
-float sqrDst, sqrDst1, sqrDst2, sqrDst3, sqrDst4, sqrDst5, sqrDst6, sqrDst7, sqrDst8;
-float viewRadius;
-float avoidRadius;
+
 float minFov;
 float maxFov;
 
 // local variables
 uint numNeighbours;
 float viewRadiusSqrd;
+float2 offset, offset1, offset2, offset3, offset4, offset5, offset6, offset7, offset8;
+float sqrDst, sqrDst1, sqrDst2, sqrDst3, sqrDst4, sqrDst5, sqrDst6, sqrDst7, sqrDst8;
+float viewRadius;
 
 [numthreads(threadGroupSize,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
 	// calculate the viewRadius to use to get maxNumNeighbours neighbours
-	numNeighbours = 0;
-	viewRadius = 0.5;
-	avoidRadius = 0.1;
-	while (numNeighbours <= maxNumNeighbours) {
+	numNeighbours = 0;	
+	viewRadius = 0.0;
+	while (numNeighbours < maxNumNeighbours) {
 		numNeighbours = 0;
+		boids[id.x].numFlockmates = 0;
+		boids[id.x].flockHeading = float2(0,0);
+		boids[id.x].flockCentre = float2(0,0);
+		boids[id.x].separationHeading = float2(0,0);
 		for (uint indexB = 0; indexB < numBoids; indexB ++) {
 			if (id.x != indexB) {
 				Boid boidB = boids[indexB];
 				float2 offset = boidB.position - boids[id.x].position;
 				float sqrDst = dot(offset, offset);
+				
+				viewRadiusSqrd = viewRadius * viewRadius;
 
-				if (sqrDst < viewRadius * viewRadius) {
+				if (sqrDst < viewRadiusSqrd) {
 					numNeighbours += 1;
+					boids[id.x].numFlockmates += 1;
+					boids[id.x].flockHeading += boidB.direction;
+					boids[id.x].flockCentre += boidB.position;
+					boids[id.x].separationHeading -= offset / sqrDst;
 					continue;
 				}
 				
@@ -69,8 +78,6 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 				sqrDst7 = dot(offset7, offset7);
 				sqrDst8 = dot(offset8, offset8);
 				
-				viewRadiusSqrd = viewRadius * viewRadius;
-				
 				if (sqrDst1 < viewRadiusSqrd ||
 					sqrDst2 < viewRadiusSqrd ||
 					sqrDst3 < viewRadiusSqrd ||
@@ -80,70 +87,15 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 					sqrDst7 < viewRadiusSqrd ||
 					sqrDst8 < viewRadiusSqrd) {
 					numNeighbours += 1;
+					boids[id.x].numFlockmates += 1;
+					boids[id.x].flockHeading += boidB.direction;
+					boids[id.x].flockCentre += boidB.position;
+					boids[id.x].separationHeading -= offset / sqrDst;
 					continue;
 				}
 			}
 		}
-		viewRadius += 0.2;
-		avoidRadius += 0.05;
-	}
-	
-	// get the maxNumNeighbours nearest neighbours
-	for (uint indexB = 0; indexB < numBoids; indexB ++) {
-		if (id.x != indexB) {
-			Boid boidB = boids[indexB];
-			float2 offset = boidB.position - boids[id.x].position;
-			float sqrDst = offset.x * offset.x + offset.y * offset.y;
-
-			if (sqrDst < viewRadius * viewRadius) {
-				boids[id.x].numFlockmates += 1;
-				boids[id.x].flockHeading += boidB.direction;
-				boids[id.x].flockCentre += boidB.position;
-
-				if (sqrDst < avoidRadius * avoidRadius) {
-					boids[id.x].separationHeading -= offset / sqrDst;
-				}
-				continue;
-			}
-			
-			offset1 = offset + screenHeight;
-			offset2 = offset + screenWidth + screenHeight;
-			offset3 = offset + screenWidth;
-			offset4 = offset + screenWidth - screenHeight;
-			offset5 = offset - screenHeight;
-			offset6 = offset - screenHeight - screenWidth;
-			offset7 = offset - screenWidth;
-			offset8 = offset - screenWidth + screenHeight;
-			
-			sqrDst1 = dot(offset1, offset1);
-			sqrDst2 = dot(offset2, offset2);
-			sqrDst3 = dot(offset3, offset3);
-			sqrDst4 = dot(offset4, offset4);
-			sqrDst5 = dot(offset5, offset5);
-			sqrDst6 = dot(offset6, offset6);
-			sqrDst7 = dot(offset7, offset7);
-			sqrDst8 = dot(offset8, offset8);
-			
-			viewRadiusSqrd = viewRadius * viewRadius;
-			
-			if (sqrDst1 < viewRadiusSqrd ||
-				sqrDst2 < viewRadiusSqrd ||
-				sqrDst3 < viewRadiusSqrd ||
-				sqrDst4 < viewRadiusSqrd ||
-				sqrDst5 < viewRadiusSqrd ||
-				sqrDst6 < viewRadiusSqrd ||
-				sqrDst7 < viewRadiusSqrd ||
-				sqrDst8 < viewRadiusSqrd) {
-				boids[id.x].numFlockmates += 1;
-				boids[id.x].flockHeading += boidB.direction;
-				boids[id.x].flockCentre += boidB.position;
-
-				if (sqrDst < avoidRadius * avoidRadius) {
-					boids[id.x].separationHeading -= offset / sqrDst;
-				}
-				continue;
-			}
-		}
+		viewRadius += 0.1;
 	}
 	
 	boids[id.x].flockHeading /= boids[id.x].numFlockmates;

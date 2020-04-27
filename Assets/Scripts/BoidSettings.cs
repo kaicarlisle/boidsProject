@@ -34,8 +34,10 @@ public class BoidSettings : ScriptableObject
     public float cohesionWeight = 1;
 	[Range(0,1)]
     public float seperateWeight = 2;
+	[HideInInspector]
 	[Range(0,1)]
 	public float polarisationLimit = 0.975f;
+	[HideInInspector]
 	[Range(-1,1)]
 	public float correlationLimit = 0f;
 	

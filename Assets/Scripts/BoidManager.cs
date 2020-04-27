@@ -15,7 +15,7 @@ public class BoidManager : MonoBehaviour {
 	Vector2 avgVelocity, polarisation;
 	float maxDistance = 0f;
 	int numConsecutiveFlocked = 0;
-	string[] values = new string[10];
+	string[] values = new string[100];
 	int stringsIndex = 0;
 
     void Start() {
@@ -125,7 +125,7 @@ public class BoidManager : MonoBehaviour {
 					values[stringsIndex] = maxDistance + "," + correlationLength;
 					stringsIndex += 1;
 					
-					if (stringsIndex >= 9) {
+					if (stringsIndex >= 100) {
 						System.IO.File.AppendAllLines(@settings.outputLocation + "\\correlations.txt", values);
 						stringsIndex = 0;
 					}
