@@ -43,6 +43,7 @@ public class BoidManager : MonoBehaviour {
 			Boid.mouseClick2Pos = Vector2.zero;
 		}
 		
+		// compute shaders dont have bool, so have to convert to int
 		if (settings.wrapScreen) {
 			screenWrapped = 1;
 		} else {
