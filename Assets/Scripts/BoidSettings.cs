@@ -12,7 +12,7 @@ public class BoidSettings : ScriptableObject
 	public int screenWidth = 58;
 	//[HideInInspector]
 	public int screenHeight = 32;
-	//[HideInInspector]
+	public bool wrapScreen = false;
 	[Tooltip("The location where the correlation measurements will be written to")]
 	public string outputLocation = @"";
 	

@@ -15,14 +15,14 @@ MonoBehaviour:
   screenWidth: 117
   screenHeight: 65
   outputLocation: D:\Libraries\Documents\Uni\Fourth year\PRBX
-  numBoids: 10
+  numBoids: 48
   spawnRadius: 10
   minSpeed: 5
   maxSpeed: 10
   maxSteerForce: 4
   alignWeight: 1
   cohesionWeight: 1
-  seperateWeight: 0.76
+  seperateWeight: 0.701
   polarisationLimit: 0.975
   correlationLimit: 0
   perceptionRadius: 12

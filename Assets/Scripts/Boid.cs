@@ -61,7 +61,28 @@ public class Boid : MonoBehaviour
 		if (mouseClick2Pos != Vector2.zero) {
 			acceleration += SteerTowards(mouseClick2Pos - position) * -50;
 		}
-        
+	
+		if (!settings.wrapScreen) {
+			// steer away from walls if about to collide
+			// steer more strongly the closer you are to the wall
+			if (position.x > settings.screenWidth/2 - 5 && velocity.x > 0) { 
+				//right wall
+				acceleration += (SteerTowards(Vector2.left) + SteerTowards(Vector2.Reflect(forward, Vector2.left))) * (5-(settings.screenWidth / 2 - position.x));
+			}
+			if (position.x < -settings.screenWidth/2 + 5 && velocity.x < 0) {
+				// left wall
+				acceleration += (SteerTowards(Vector2.right) + SteerTowards(Vector2.Reflect(forward, Vector2.right))) * (5+(-settings.screenWidth / 2 - position.x));
+			}
+			if (position.y > settings.screenHeight/2 - 5 && velocity.y > 0) {
+				// top wall
+				acceleration += (SteerTowards(Vector2.down) + SteerTowards(Vector2.Reflect(forward, Vector2.down))) * (5-(settings.screenHeight / 2 - position.y));
+			}
+			if (position.y < -settings.screenHeight/2 + 5 && velocity.y < 0) {
+				// bottom wall
+				acceleration += (SteerTowards(Vector2.up) + SteerTowards(Vector2.Reflect(forward, Vector2.up))) * (5+(-settings.screenHeight / 2 - position.y));
+			}
+		}
+		
 		// calculate and clamp the acceleration -> velocity -> position
         velocity += acceleration * Time.deltaTime;
         float speed = velocity.magnitude;
@@ -71,19 +92,19 @@ public class Boid : MonoBehaviour
 		
         position += velocity * Time.deltaTime;
 	
-		// wrap any birds which went off screen
-        if (position.x >= settings.screenWidth / 2) {
-            position.x = 1 - settings.screenWidth / 2;
-        }
+		// wrap any birds which went off screen so we don't lose any
+		if (position.x >= settings.screenWidth / 2) {
+			position.x = 1 - settings.screenWidth / 2;
+		}
 		if (position.x <= -settings.screenWidth / 2) {
-            position.x = (settings.screenWidth / 2) - 1;
-        }
-        if (position.y >= settings.screenHeight / 2) {
-            position.y = 1 - settings.screenHeight / 2;
-        }
+			position.x = (settings.screenWidth / 2) - 1;
+		}
+		if (position.y >= settings.screenHeight / 2) {
+			position.y = 1 - settings.screenHeight / 2;
+		}
 		if (position.y <= -settings.screenHeight / 2) {
-            position.y = (settings.screenHeight / 2) - 1;
-        }
+			position.y = (settings.screenHeight / 2) - 1;
+		}
         
 		// update draw position on screen
         transform.position = position;

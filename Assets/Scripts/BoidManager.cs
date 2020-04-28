@@ -17,6 +17,7 @@ public class BoidManager : MonoBehaviour {
 	int numConsecutiveFlocked = 0;
 	string[] values = new string[100];
 	int stringsIndex = 0;
+	int screenWrapped = 0; // 1 if true, 0 if false
 
     void Start() {
         boids = FindObjectsOfType<Boid>();
@@ -42,6 +43,12 @@ public class BoidManager : MonoBehaviour {
 			Boid.mouseClick2Pos = Vector2.zero;
 		}
 		
+		if (settings.wrapScreen) {
+			screenWrapped = 1;
+		} else {
+			screenWrapped = 0;
+		}
+		
         if (boids != null) {
 
             numBoids = boids.Length;
@@ -65,6 +72,7 @@ public class BoidManager : MonoBehaviour {
 			compute.SetInt("screenWidth", settings.screenWidth);
 			compute.SetInt("screenHeight", settings.screenHeight);
 			compute.SetInt("maxNumNeighbours", settings.NNearestNeighbours);
+			compute.SetInt("wrapScreen", screenWrapped);
 
             int threadGroups = Mathf.CeilToInt(numBoids / (float)threadGroupSize);
             compute.Dispatch(0, threadGroups, 1, 1);

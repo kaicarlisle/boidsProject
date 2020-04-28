@@ -21,6 +21,7 @@ float minFov;
 float maxFov;
 uint screenWidth;
 uint screenHeight;
+uint wrapScreen;
 
 // not used
 uint maxNumNeighbours;
@@ -63,41 +64,43 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 				}
             }
 			
-			offset1 = offset + screenHeight;
-			offset2 = offset + screenWidth + screenHeight;
-			offset3 = offset + screenWidth;
-			offset4 = offset + screenWidth - screenHeight;
-			offset5 = offset - screenHeight;
-			offset6 = offset - screenHeight - screenWidth;
-			offset7 = offset - screenWidth;
-			offset8 = offset - screenWidth + screenHeight;
-			
-			sqrDst1 = dot(offset1, offset1);
-			sqrDst2 = dot(offset2, offset2);
-			sqrDst3 = dot(offset3, offset3);
-			sqrDst4 = dot(offset4, offset4);
-			sqrDst5 = dot(offset5, offset5);
-			sqrDst6 = dot(offset6, offset6);
-			sqrDst7 = dot(offset7, offset7);
-			sqrDst8 = dot(offset8, offset8);
-			
-			if (sqrDst1 < viewRadiusSqrd ||
-				sqrDst2 < viewRadiusSqrd ||
-				sqrDst3 < viewRadiusSqrd ||
-				sqrDst4 < viewRadiusSqrd ||
-				sqrDst5 < viewRadiusSqrd ||
-				sqrDst6 < viewRadiusSqrd ||
-				sqrDst7 < viewRadiusSqrd ||
-				sqrDst8 < viewRadiusSqrd) {
-				if (minFov <= angle <= maxFov) {
-					boids[id.x].numFlockmates += 1;
-					boids[id.x].flockHeading += boidB.direction;
-					boids[id.x].flockCentre += boidB.position;
+			if (wrapScreen) {
+				offset1 = offset + screenHeight;
+				offset2 = offset + screenWidth + screenHeight;
+				offset3 = offset + screenWidth;
+				offset4 = offset + screenWidth - screenHeight;
+				offset5 = offset - screenHeight;
+				offset6 = offset - screenHeight - screenWidth;
+				offset7 = offset - screenWidth;
+				offset8 = offset - screenWidth + screenHeight;
+				
+				sqrDst1 = dot(offset1, offset1);
+				sqrDst2 = dot(offset2, offset2);
+				sqrDst3 = dot(offset3, offset3);
+				sqrDst4 = dot(offset4, offset4);
+				sqrDst5 = dot(offset5, offset5);
+				sqrDst6 = dot(offset6, offset6);
+				sqrDst7 = dot(offset7, offset7);
+				sqrDst8 = dot(offset8, offset8);
+				
+				if (sqrDst1 < viewRadiusSqrd ||
+					sqrDst2 < viewRadiusSqrd ||
+					sqrDst3 < viewRadiusSqrd ||
+					sqrDst4 < viewRadiusSqrd ||
+					sqrDst5 < viewRadiusSqrd ||
+					sqrDst6 < viewRadiusSqrd ||
+					sqrDst7 < viewRadiusSqrd ||
+					sqrDst8 < viewRadiusSqrd) {
+					if (minFov <= angle <= maxFov) {
+						boids[id.x].numFlockmates += 1;
+						boids[id.x].flockHeading += boidB.direction;
+						boids[id.x].flockCentre += boidB.position;
 
-					if (sqrDst < avoidRadiusSqrd) {
-						boids[id.x].separationHeading -= offset / sqrDst;
+						if (sqrDst < avoidRadiusSqrd) {
+							boids[id.x].separationHeading -= offset / sqrDst;
+						}
+						continue;
 					}
-					continue;
 				}
 			}
         }
