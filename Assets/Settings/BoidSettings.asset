@@ -12,21 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c060f91fddc4b440896fdc0f9ba7fdc, type: 3}
   m_Name: BoidSettings
   m_EditorClassIdentifier: 
-  screenWidth: 117
-  screenHeight: 65
+  screenWidth: 120
+  screenHeight: 66
+  wrapScreen: 1
   outputLocation: D:\Libraries\Documents\Uni\Fourth year\PRBX
-  numBoids: 48
+  numBoids: 500
   spawnRadius: 10
   minSpeed: 5
   maxSpeed: 10
-  maxSteerForce: 4
-  alignWeight: 1
-  cohesionWeight: 1
-  seperateWeight: 0.701
+  maxSteerForce: 3
+  alignWeight: 0.9
+  cohesionWeight: 0.8
+  seperateWeight: 1
   polarisationLimit: 0.975
   correlationLimit: 0
   perceptionRadius: 12
   avoidanceRadius: 0.95
   minFov: 0
   maxFov: 130
-  NNearestNeighbours: 7
+  NNearestNeighbours: 6

@@ -68,8 +68,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 					// the centre of the bird is within fov
 					front_offset = offset + (half_length_of_boid * normalize(boidB.direction));
 					back_offset = offset - (half_length_of_boid * normalize(boidB.direction));
-					front_angle = angle_between(boids[id.x].position, front_offset);
-					back_angle = angle_between(boids[id.x].position, back_offset);
+					front_angle = angle_between(boids[id.x].forward, front_offset);
+					back_angle = angle_between(boids[id.x].forward, back_offset);
 					
 					if (back_angle < front_angle) {
 						// boidB is flying in the opposite direction

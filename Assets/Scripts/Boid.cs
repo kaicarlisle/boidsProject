@@ -67,19 +67,19 @@ public class Boid : MonoBehaviour
 			// steer more strongly the closer you are to the wall
 			if (position.x > settings.screenWidth/2 - 5 && velocity.x > 0) { 
 				//right wall
-				acceleration += (SteerTowards(Vector2.left) + SteerTowards(Vector2.Reflect(forward, Vector2.left))) * (5-(settings.screenWidth / 2 - position.x));
+				acceleration += (SteerTowards(Vector2.left) + SteerTowards(Vector2.Reflect(forward, Vector2.left))) * (8-(settings.screenWidth / 2 - position.x));
 			}
 			if (position.x < -settings.screenWidth/2 + 5 && velocity.x < 0) {
 				// left wall
-				acceleration += (SteerTowards(Vector2.right) + SteerTowards(Vector2.Reflect(forward, Vector2.right))) * (5+(-settings.screenWidth / 2 - position.x));
+				acceleration += (SteerTowards(Vector2.right) + SteerTowards(Vector2.Reflect(forward, Vector2.right))) * (8+(-settings.screenWidth / 2 - position.x));
 			}
 			if (position.y > settings.screenHeight/2 - 5 && velocity.y > 0) {
 				// top wall
-				acceleration += (SteerTowards(Vector2.down) + SteerTowards(Vector2.Reflect(forward, Vector2.down))) * (5-(settings.screenHeight / 2 - position.y));
+				acceleration += (SteerTowards(Vector2.down) + SteerTowards(Vector2.Reflect(forward, Vector2.down))) * (8-(settings.screenHeight / 2 - position.y));
 			}
 			if (position.y < -settings.screenHeight/2 + 5 && velocity.y < 0) {
 				// bottom wall
-				acceleration += (SteerTowards(Vector2.up) + SteerTowards(Vector2.Reflect(forward, Vector2.up))) * (5+(-settings.screenHeight / 2 - position.y));
+				acceleration += (SteerTowards(Vector2.up) + SteerTowards(Vector2.Reflect(forward, Vector2.up))) * (8+(-settings.screenHeight / 2 - position.y));
 			}
 		}
 		
